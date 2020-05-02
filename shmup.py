@@ -21,6 +21,7 @@
 # 5 часть Улучшение столкновения мобов с границами
 # 6 часть Добавление движения бэкграунда
 # 7 часть Добавление наклонов карабля и исправление бага с серыми рамками усилений
+# 8 часть Добавлние спрайта Alien
 
 # Frozen Jam by tgfcoder <https://twitter.com/tgfcoder> licensed under CC-BY-3
 # Art from Kenney.nl
@@ -36,6 +37,7 @@ HEIGHT = 600
 FPS = 60
 POWERUP_TIME = 4000
 bkgd_y = 0
+Level = 0
 
 # Задаем цвета
 WHITE = (255, 255, 255)
@@ -162,9 +164,6 @@ class Mob(pygame.sprite.Sprite):
         self.rotate()
         self.rect.x += self.speedx
         self.rect.y += self.speedy
-        time_to_arriving = 0.125 * (((player.rect.x - self.rect.x) ** 2) + (player.rect.y - self.rect.y) ** 2) ** 0.5
-        # self.speedx = (player.rect.x - self.rect.x) / time_to_arriving
-        # self.speedy = (player.rect.y - self.rect.y) / time_to_arriving                                                     самонаведение
         if self.rect.top > HEIGHT + 25 or self.rect.left > WIDTH + 25 or self.rect.right < 0:
             self.rect.x = random.randrange(WIDTH - self.rect.width)
             self.rect.y = random.randrange(-100, -40)
@@ -180,6 +179,26 @@ class Mob(pygame.sprite.Sprite):
             self.image = new_image
             self.rect = self.image.get_rect()
             self.rect.center = old_center
+
+class Alien(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = alien_img
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(WIDTH - self.rect.width)
+        self.rect.y = -100
+        self.speedx = 4
+        self.speedy = 2
+        self.lives = 5
+
+    def update(self):
+        self.rect.y += self.speedy
+        if self.rect.top > 0:
+            self.rect.y = 0
+            self.rect.x += self.speedx
+            if self.rect.right > WIDTH or self.rect.left < 0:
+                self.speedx = -self.speedx
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -250,6 +269,11 @@ def newmob():
     all_sprites.add(m)
     mobs.add(m)
 
+def new_alien():
+    a = Alien()
+    all_sprites.add(a)
+    aliens.add(a)
+
 def draw_shield_bar(surf, x, y, pct):
     if pct < 0:
         pct = 0
@@ -299,6 +323,7 @@ meteor_list =['meteorBrown_big1.png','meteorBrown_med1.png',
               'meteorBrown_tiny1.png']
 for img in meteor_list:
     meteor_imges.append(pygame.image.load(path.join(img_dir, img)).convert())
+alien_img = pygame.image.load(path.join(img_dir, "ufoGreen.png")).convert()
 explosion_anim = {}
 explosion_anim['lg'] = []
 explosion_anim['sm'] = []
@@ -335,6 +360,7 @@ power_sound = pygame.mixer.Sound(path.join(snd_dir, 'PowerupGun.wav'))
 # Создание и заполнение групп спрайтов
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
+aliens = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 powerups = pygame.sprite.Group()
 player = Player()
@@ -355,6 +381,7 @@ while running:
         game_over = False
         all_sprites = pygame.sprite.Group()
         mobs = pygame.sprite.Group()
+        aliens = pygame.sprite.Group()
         bullets = pygame.sprite.Group()
         powerups = pygame.sprite.Group()
         player = Player()
@@ -362,11 +389,16 @@ while running:
         for i in range(8):
             newmob()
         score = 0
+        Level = 0
     # Ввод процесса (события)
     for event in pygame.event.get():
         # Проверка для закрытия окна
         if event.type == pygame.QUIT:
             running = False
+
+    if score >= 400 and Level == 0:
+        new_alien()
+        Level += 1
 
     # Обновление
     all_sprites.update()
