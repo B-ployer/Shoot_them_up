@@ -452,6 +452,12 @@ while running:
                 powerups.add(pow)
             newmob()
 
+    hits = pygame.sprite.spritecollide(player, enemy_bullets, True)
+    for hit in hits:
+        player.shield -= 30
+        expl = Explosion(hit.rect.center, 'sm')
+        all_sprites.add(expl)
+
     # Проверка, не ударил ли моб игрока
     hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
     for hit in hits:
@@ -459,13 +465,14 @@ while running:
         expl = Explosion(hit.rect.center, 'sm')
         all_sprites.add(expl)
         newmob()
-        if player.shield <= 0:
-            death_explosion = Explosion(player.rect.center, 'player')
-            all_sprites.add(death_explosion)
-            player.hide()
-            player.lives -= 1
-            player.shield = 100
-            death_explosion_snd.play()
+
+    if player.shield <= 0:
+        death_explosion = Explosion(player.rect.center, 'player')
+        all_sprites.add(death_explosion)
+        player.hide()
+        player.lives -= 1
+        player.shield = 100
+        death_explosion_snd.play()
 
     # Проверка столкновений игрока и улучшения
     hits = pygame.sprite.spritecollide(player, powerups, True)
