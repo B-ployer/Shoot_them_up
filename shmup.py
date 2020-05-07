@@ -28,7 +28,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Shut`em up!")
 clock = pygame.time.Clock()
 bkgd_y = 0
-Level = 0
+level = 0
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -390,16 +390,16 @@ while running:
         for i in range(8):
             newmob()
         score = 0
-        Level = 0
+        level = 0
     # Ввод процесса (события)
     for event in pygame.event.get():
         # Проверка для закрытия окна
         if event.type == pygame.QUIT:
             running = False
 
-    if score >= 400 and Level == 0:
+    if score >= 400 and level == 0:
         new_alien()
-        Level += 1
+        level += 1
 
     # Обновление
     all_sprites.update()
