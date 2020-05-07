@@ -1,29 +1,4 @@
 # Игра Shmup
-# 1 часть Спрайт игрока и управление
-# 2 часть Создание мобов
-# 3 часть Создание пуль и столкновений
-# 4 часть Загрузка и обработка графики
-# 5 часть Замена столкновения с AABB на столкновения с Circle Bounding Box
-# 6 часть Анимация спрайтов
-# 7 часть Счёт и рендеринг текста
-# 8 часть Подключение звуков и музыки
-# 9 часть Добавление шкалы здоровья
-# 10 часть Добавление анимации взрыва астероида и авто-огня
-# 11 часть Добавление анимации взрыва игрока и жизней игрока
-# 12 часть Добавление улучшений (щита)
-# 13 часть Добавление улучшения (оружия) и звуков улучшений
-# 14 часть Добавление экрана "Игра закончена"
-# --------------------Самостоятельная-часть---------------------
-# 1 часть Добавление жизней мобам
-# 2 часть Устранение бага с выстрелами после смерти
-# 3 часть Добавление отображения жизней мобов
-# 4 часть Улучшение направления мобов, летят в сторону игрока
-# 5 часть Улучшение столкновения мобов с границами
-# 6 часть Добавление движения бэкграунда
-# 7 часть Добавление наклонов карабля и исправление бага с серыми рамками усилений
-# 8 часть Добавление спрайта Alien
-# 9 часть Добавление класса вражеских снарядов, добавление выстрелов спрайту Alien и устранение pygame.transform.scale из метода update в классе Player
-
 # Frozen Jam by tgfcoder <https://twitter.com/tgfcoder> licensed under CC-BY-3
 # Art from Kenney.nl
 import pygame
@@ -110,12 +85,12 @@ class Player(pygame.sprite.Sprite):
         if now - self.last_shot > self.shoot_delay:
             self.last_shot = now
             if self.power == 1:
-                bullet = Bullet(self.rect.centerx, self.rect.top)
+                bullet = Bullet(self.rect.centerx, self.rect.top, "player")
                 all_sprites.add(bullet)
                 bullets.add(bullet)
             if self.power >= 2:
-                bullet1 = Bullet(self.rect.left, self.rect.centery)
-                bullet2 = Bullet(self.rect.right, self.rect.centery)
+                bullet1 = Bullet(self.rect.left, self.rect.centery, "player")
+                bullet2 = Bullet(self.rect.right, self.rect.centery, "player")
                 all_sprites.add(bullet1)
                 all_sprites.add(bullet2)
                 bullets.add(bullet1)
@@ -207,42 +182,34 @@ class Alien(pygame.sprite.Sprite):
         now = pygame.time.get_ticks()
         if now - self.last_shot > self.shoot_delay:
             self.last_shot = now
-            alien_bullet = EnemyBullet(self.rect.centerx, self.rect.bottom)
+            alien_bullet = Bullet(self.rect.centerx, self.rect.bottom)
             all_sprites.add(alien_bullet)
             enemy_bullets.add(alien_bullet)
             shoot_sound.play()
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, belonging="enemy"):
         pygame.sprite.Sprite.__init__(self)
-        self.image = bullet_img
+        self.belonging = belonging
+        if self.belonging == "player":
+            self.image = bullet_img
+        else:
+            self.image = enemy_bullet_img
+            self.image = pygame.transform.rotate(self.image, 180)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
-        self.rect.bottom = y
         self.rect.centerx = x
-        self.speedy = -10
+        if self.belonging == "player":
+            self.rect.bottom = y
+            self.speedy = -10
+        else:
+            self.rect.top = y
+            self.speedy = 10
 
     def update(self):
         self.rect.y += self.speedy
-        # Убить, если он заходит за верхнюю часть экрана
-        if self.rect.bottom < 0:
-            self.kill()
-
-class EnemyBullet(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = bullet_img
-        self.image = pygame.transform.rotate(self.image, 180)
-        self.image.set_colorkey(BLACK)
-        self.rect = self.image.get_rect()
-        self.rect.top = y
-        self.rect.centerx = x
-        self.speedy = 10
-
-    def update(self):
-        self.rect.y += self.speedy
-        if self.rect.top > HEIGHT:
+        if self.belonging == "player" and self.rect.bottom < 0 or self.belonging != "player" and self.rect.top > HEIGHT:
             self.kill()
 
 class Explosion(pygame.sprite.Sprite):
@@ -347,7 +314,8 @@ player_img_right = pygame.image.load(path.join(img_dir, "playerShip1_orange_righ
 player_img_right = pygame.transform.scale(player_img_right, (50, 38))
 player_mini_img = pygame.transform.scale(player_img, (25, 19))
 player_mini_img.set_colorkey(BLACK)
-bullet_img = pygame.image.load(path.join(img_dir, "laserRed07.png")).convert()
+bullet_img = pygame.image.load(path.join(img_dir, "laserBlue07.png")).convert()
+enemy_bullet_img = pygame.image.load(path.join(img_dir, "laserRed07.png")).convert()
 meteor_imges = []
 meteor_list =['meteorBrown_big1.png','meteorBrown_med1.png',
               'meteorBrown_med1.png','meteorBrown_med3.png',
