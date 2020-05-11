@@ -184,6 +184,16 @@ while running:
                 powerups.add(pow)
             newmob()
 
+    hits = pygame.sprite.groupcollide(aliens, bullets, False, True)
+    for hit in hits:
+        hit.lives -= 1
+        if hit.lives <= 0:
+            hit.kill()
+            score += 60
+            random.choice(expl_sounds).play()
+            expl = Explosion(hit.rect.center, 'lg')
+            all_sprites.add(expl)
+
     hits = pygame.sprite.spritecollide(player, enemy_bullets, True)
     for hit in hits:
         player.shield -= 30
