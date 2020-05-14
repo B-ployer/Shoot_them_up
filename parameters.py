@@ -25,3 +25,5 @@ level = 0
 score = 0
 game_over = True
 running = True
+
+font_name = pygame.font.match_font('arial')

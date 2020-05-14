@@ -13,82 +13,15 @@ from mob import *
 from alien import *
 from bullet import *
 from explosion import *
+from functions import *
 
 pygame.init()
-
-class Pow(pygame.sprite.Sprite):
-    def __init__(self, center):
-        pygame.sprite.Sprite.__init__(self)
-        self.type = random.choice(['shield', 'gun'])
-        self.image = powerup_images[self.type]
-        self.image.set_colorkey(BLACK)
-        self.rect = self.image.get_rect()
-        self.rect.center = center
-        self.speedy = 2
-
-    def update(self):
-        self.rect.y += self.speedy
-        # Убить, если он заходит за верхнюю часть экрана
-        if self.rect.top > HEIGHT:
-            self.kill()
-
-font_name = pygame.font.match_font('arial')
-def draw_text(surf, text, size, x, y):
-    font = pygame.font.Font(font_name, size)
-    text_surface = font.render(text, True, WHITE)
-    text_rect = text_surface.get_rect()
-    text_rect.midtop = (x, y)
-    surf.blit(text_surface, text_rect)
-
-def newmob():
-    m = Mob()
-    all_sprites.add(m)
-    mobs.add(m)
-
-def new_alien():
-    a = Alien()
-    all_sprites.add(a)
-    aliens.add(a)
-
-def draw_shield_bar(surf, x, y, pct):
-    if pct < 0:
-        pct = 0
-    BAR_LENGTH = 100
-    BAR_HEIGHT = 10
-    fill = (pct / 100) * BAR_LENGTH
-    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
-    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
-    pygame.draw.rect(surf, GREEN, fill_rect)
-    pygame.draw.rect(surf, WHITE, outline_rect, 2)
-
-def draw_lives(surf, x, y, lives, img):
-    for i in range(lives):
-        img_rect = img.get_rect()
-        img_rect.x = x + 30 * i
-        img_rect.y = y
-        surf.blit(img, img_rect)
-
-def show_go_screen():
-    screen.blit(background, background_rect)
-    draw_text(screen, "SHMUP!", 64, WIDTH / 2, HEIGHT / 4)
-    draw_text(screen, "Arrow keys move, Space to fire", 22, WIDTH / 2, HEIGHT / 2)
-    draw_text(screen, "Press a key to begin", 18, WIDTH / 2, HEIGHT * 3 / 4)
-    pygame.display.flip()
-    waiting = True
-    while waiting:
-        clock.tick(FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-            if event.type == pygame.KEYUP:
-                waiting = False
-
 pygame.mixer.music.play(loops=-1)
 
 # Цикл игры
 while running:
-    # Держим цикл на правильной скорости
     clock.tick(FPS)
+
     if game_over:
         show_go_screen()
         game_over = False
@@ -99,9 +32,9 @@ while running:
             newmob()
         score = 0
         level = 0
+        
     # Ввод процесса (события)
     for event in pygame.event.get():
-        # Проверка для закрытия окна
         if event.type == pygame.QUIT:
             running = False
 
@@ -112,45 +45,12 @@ while running:
     # Обновление
     all_sprites.update()
 
-    # Проверка, попала ли пуля в моба
-    hits = pygame.sprite.groupcollide(mobs, bullets, False, True)
-    for hit in hits:
-        hit.lives -= 1
-        if hit.lives <= 0:
-            hit.kill()
-            score += 50 - hit.radius
-            random.choice(expl_sounds).play()
-            expl = Explosion(hit.rect.center, 'lg')
-            all_sprites.add(expl)
-            if random.random() > 0.8:
-                pow = Pow(hit.rect.center)
-                all_sprites.add(pow)
-                powerups.add(pow)
-            newmob()
+    score = g_colliding(score, mobs, bullets, False, True)
+    score = g_colliding(score, aliens, bullets, False, True)
 
-    hits = pygame.sprite.groupcollide(aliens, bullets, False, True)
-    for hit in hits:
-        hit.lives -= 1
-        if hit.lives <= 0:
-            hit.kill()
-            score += 60
-            random.choice(expl_sounds).play()
-            expl = Explosion(hit.rect.center, 'lg')
-            all_sprites.add(expl)
-
-    hits = pygame.sprite.spritecollide(player, enemy_bullets, True)
-    for hit in hits:
-        player.shield -= 30
-        expl = Explosion(hit.rect.center, 'sm')
-        all_sprites.add(expl)
-
-    # Проверка, не ударил ли моб игрока
-    hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
-    for hit in hits:
-        player.shield -= hit.radius * 2
-        expl = Explosion(hit.rect.center, 'sm')
-        all_sprites.add(expl)
-        newmob()
+    s_colliding(player, enemy_bullets, True)
+    s_colliding(player, mobs, True, pygame.sprite.collide_circle)
+    s_colliding(player, powerups, True)
 
     if player.shield <= 0:
         death_explosion = Explosion(player.rect.center, 'player')
@@ -160,19 +60,6 @@ while running:
         player.shield = 100
         death_explosion_snd.play()
 
-    # Проверка столкновений игрока и улучшения
-    hits = pygame.sprite.spritecollide(player, powerups, True)
-    for hit in hits:
-        if hit.type == 'shield':
-            player.shield += random.randrange(10, 30)
-            if player.shield >= 100:
-                player.shield = 100
-            shield_sound.play()
-        if hit.type == 'gun':
-            player.powerup()
-            power_sound.play()
-
-    # Если игрок умер, игра окончена
     if player.lives == 0 and not death_explosion.alive():
         game_over = True
 
