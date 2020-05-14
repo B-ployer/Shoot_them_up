@@ -1,8 +1,5 @@
-import pygame
 from parameters import *
 from images import *
-
-pygame.init()
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, belonging="enemy"):

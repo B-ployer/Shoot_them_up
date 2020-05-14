@@ -1,11 +1,8 @@
-import pygame
 import random
 from images import *
 from bullet import *
 from sprites import *
 from sounds import *
-
-pygame.init()
 
 class Alien(pygame.sprite.Sprite):
     def __init__(self):

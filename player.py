@@ -1,11 +1,8 @@
-import pygame
 from sprites import all_sprites, bullets
 from images import *
 from parameters import *
 from bullet import *
 from sounds import *
-
-pygame.init()
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):

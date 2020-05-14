@@ -1,7 +1,5 @@
 import pygame
 
-pygame.init()
-
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
 aliens = pygame.sprite.Group()

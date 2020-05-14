@@ -1,8 +1,5 @@
 import pygame
-from os import path
 from parameters import *
-
-pygame.init()
 
 background = pygame.image.load(path.join(img_dir, 'new_starfield.png')).convert()
 background_rect = background.get_rect()

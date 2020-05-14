@@ -2,7 +2,7 @@ import pygame
 from os import path
 from parameters import *
 
-pygame.init()
+pygame.mixer.init()
 
 shoot_sound = pygame.mixer.Sound(path.join(snd_dir, 'pew.wav'))
 expl_sounds = []

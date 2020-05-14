@@ -1,11 +1,8 @@
-import pygame
 import random
 from parameters import *
 from player import *
 from images import *
 from sprites import *
-
-pygame.init()
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self):

@@ -1,8 +1,6 @@
 import pygame
 from os import path
 
-pygame.init()
-
 img_dir = path.join(path.dirname(__file__), 'img')
 snd_dir = path.join(path.dirname(__file__), 'snd')
 
