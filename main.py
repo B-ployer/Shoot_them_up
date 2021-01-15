@@ -1,12 +1,7 @@
 # Игра Shmup
 # Frozen Jam by tgfcoder <https://twitter.com/tgfcoder> licensed under CC-BY-3
 # Art from Kenney.nl
-import pygame
-import random
-from os import path
-from parameters import *
 from sprites import *
-from images import *
 from sounds import *
 from player import *
 from mob import *
@@ -32,7 +27,7 @@ while running:
             newmob()
         score = 0
         level = 0
-        
+
     # Ввод процесса (события)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

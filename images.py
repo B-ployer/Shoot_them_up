@@ -1,4 +1,3 @@
-import pygame
 from parameters import *
 
 background = pygame.image.load(path.join(img_dir, 'new_starfield.png')).convert()

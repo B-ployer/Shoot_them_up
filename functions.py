@@ -13,6 +13,14 @@ def draw_text(surf, text, size, x, y):
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
+def refresh_sprites(a_s, m, al, b, e_b, p):
+    a_s.empty()
+    m.empty()
+    al.empty()
+    b.empty()
+    e_b.empty()
+    p.empty()
+
 def newmob():
     m = Mob()
     all_sprites.add(m)
